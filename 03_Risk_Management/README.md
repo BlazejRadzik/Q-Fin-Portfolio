@@ -15,3 +15,11 @@ calc = VaRCalculator()
 
 # Calculate 95% Confidence VaR for EUR/PLN with 1M PLN exposure
 calc.calculate_parametric_var(currency_pair='EUR/PLN', confidence_level=0.95, exposure=1000000)
+
+## 🧮 Methodology
+The parametric VaR is calculated using the variance-covariance approach:
+$$VaR_{\alpha} = V \cdot Z_{\alpha} \cdot \sigma \cdot \sqrt{\Delta t}$$
+Where:
+* $V$: Portfolio value (Exposure).
+* $Z_{\alpha}$: Critical value from the standard normal distribution.
+* $\sigma$: Asset volatility (Standard deviation of returns).
