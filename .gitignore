@@ -1,0 +1,9 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+config.py
+# Bazy danych
+*.sqlite3
