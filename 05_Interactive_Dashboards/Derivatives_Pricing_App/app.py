@@ -3,7 +3,6 @@ import plotly.graph_objects as go
 import numpy as np
 from scipy.stats import norm
 
-# --- Pricing Functions (Normally imported from src, kept here for Streamlit cloud compatibility if needed) ---
 def black_scholes_european(S, K, T, r, sigma):
     d1 = (np.log(S / K) + (r + 0.5 * sigma**2) * T) / (sigma * np.sqrt(T))
     d2 = d1 - sigma * np.sqrt(T)
@@ -16,9 +15,8 @@ def monte_carlo_pricing(S, K, T, r, sigma, iterations=10000):
     payoffs = np.maximum(ST - K, 0)
     return np.exp(-r * T) * np.mean(payoffs)
 
-# --- UI Setup ---
 st.set_page_config(page_title="Option Pricing Calculator", layout="wide")
-
+# AI generated 
 st.markdown("""
     <style>
     .block-container { padding-top: 5rem !important; }
