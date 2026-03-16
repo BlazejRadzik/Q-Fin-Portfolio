@@ -27,17 +27,13 @@ class VaRCalculator:
             print(f"No data found for {currency_pair}! Please run 'fx_data_loader.py' first.\n")
             return
 
-        # Calculate daily logarithmic returns
         df['returns'] = np.log(df['rate_mid'] / df['rate_mid'].shift(1))
         df = df.dropna()
         
-        # VaR Parameters
         volatility = df['returns'].std()
         
-        # Use scipy to get the exact Z-score for the given confidence level
         z_score = norm.ppf(confidence_level) 
         
-        # VaR Calculation
         var_pct = z_score * volatility
         var_value = exposure * var_pct
         
