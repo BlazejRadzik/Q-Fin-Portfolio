@@ -1,8 +1,8 @@
-# 📈 Hybrid Options Pricing Engine
+# Hybrid Options Pricing Engine
 
 This module provides a robust, object-oriented pricing engine that combines the analytical Black-Scholes-Merton framework with Monte Carlo simulations. It implements variance reduction using the Control Variates method.
 
-## 🚀 Quick Start (Usage Example)
+## Quick Start (Usage Example)
 
 You can import and use the `HybridPricingEngine` in your own scripts or notebooks.
 
@@ -26,7 +26,7 @@ print(summary)
 # Expected Output:
 # {'Company': 'PKO.WA', 'Period': 'PKO_Shock_Scenario', 'BS_Price': 2.45, 'MC_Mean': 2.44, 'Hybrid_Mean': 2.45}
 
-📊 Generating Reports
+Generate Results
 To extract a formatted ASCII table for research papers or reports, use the built-in formatter:
 from report_formatter import print_simulation_table
 
