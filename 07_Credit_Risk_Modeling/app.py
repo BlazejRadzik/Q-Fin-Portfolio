@@ -2,15 +2,13 @@ import streamlit as st
 import numpy as np
 
 st.set_page_config(page_title="Institutional Credit Risk Terminal", layout="wide")
-st.title("🏦 Credit Risk Intelligence Dashboard")
+st.title("Credit Risk Dashboard")
 
 with st.sidebar:
     st.header("Applicant Attributes")
     fico = st.slider("FICO Score", 300, 850, 720)
     dti = st.slider("Debt-to-Income Ratio (DTI)", 0.0, 1.0, 0.3)
 
-# Logit PD Model Simulation
-# PD = 1 / (1 + exp(-z))
 logit_z = -0.015 * fico + 2.5 * dti + 3.0
 pd_score = 1 / (1 + np.exp(-logit_z))
 
