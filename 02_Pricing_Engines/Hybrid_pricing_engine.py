@@ -32,12 +32,10 @@ class HybridPricingEngine:
         Executes the Black-Scholes pricing and Monte Carlo simulation.
         Returns a summary dictionary and a detailed DataFrame.
         """
-        # 1. Black-Scholes Analytical Calculation
         d1 = (np.log(self.spot_price / self.strike_price) + (self.risk_free_rate + 0.5 * self.volatility**2) * self.time_to_maturity) / (self.volatility * np.sqrt(self.time_to_maturity))
         d2 = d1 - self.volatility * np.sqrt(self.time_to_maturity)
         bs_price = self.spot_price * norm.cdf(d1) - self.strike_price * np.exp(-self.risk_free_rate * self.time_to_maturity) * norm.cdf(d2)
 
-        # 2. Monte Carlo Simulation
         np.random.seed(42)
         z = np.random.standard_normal(self.iterations)
         
@@ -45,10 +43,8 @@ class HybridPricingEngine:
         payoffs = np.maximum(simulated_spot - self.strike_price, 0)
         pv_payoffs = np.exp(-self.risk_free_rate * self.time_to_maturity) * payoffs
         
-        # 3. Control Variate Hybrid Calculation
         hybrid_contributions = pv_payoffs + 1.0 * (bs_price - pv_payoffs)
 
-        # 4. Detailing Results
         detailed_df = pd.DataFrame({
             'Scenario': scenario_name,
             'Sim_ID': np.arange(1, self.iterations + 1),
@@ -105,7 +101,6 @@ if __name__ == "__main__":
             
             print(f"Completed {full_name}")
 
-    # Exporting results
     pd.DataFrame(all_summaries).to_csv("summary_results.csv", index=False, sep=';')
     pd.concat(all_details).to_csv("simulation_details.csv", index=False, sep=';')
 
