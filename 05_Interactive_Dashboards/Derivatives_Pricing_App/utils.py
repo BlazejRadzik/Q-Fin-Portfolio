@@ -9,14 +9,14 @@ def calculate_vega(S, K, T, r, sigma):
 
 def implied_volatility(target_price, S, K, T, r, option_type="call"):
     """Calculates implied volatility using the Newton-Raphson method."""
-    sigma = 0.2  # Initial guess
+    sigma = 0.2  
     
     for i in range(100):
         price = black_scholes_european(S, K, T, r, sigma, option_type)
         vega = calculate_vega(S, K, T, r, sigma)
         
         if vega == 0.0:
-            break  # Prevent division by zero
+            break  
             
         diff = target_price - price
         
