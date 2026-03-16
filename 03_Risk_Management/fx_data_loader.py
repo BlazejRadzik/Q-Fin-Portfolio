@@ -39,7 +39,6 @@ class MarketDataLoader:
             df = pd.DataFrame(data['rates'])
             df['currency_pair'] = f"{currency}/PLN"
             
-            # Format dataframe to match DB schema
             df = df.rename(columns={'effectiveDate': 'date', 'mid': 'rate_mid'})
             df = df[['date', 'currency_pair', 'rate_mid']]
             
