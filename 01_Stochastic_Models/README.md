@@ -1,9 +1,9 @@
-# 📉 Portfolio Optimization & Stochastic Models
+# Portfolio Optimization and Stochastic Models
 
-This module focuses on Modern Portfolio Theory (MPT) and stochastic processes. The flagship application is an interactive terminal for asset allocation.
+This module focuses on Modern Portfolio Theory (MPT) and stochastic processes.
 
-## 🚀 Interactive App: Portfolio Optimizer
-The `portfolio_optimizer_app.py` is a Streamlit-based dashboard that allows users to:
+## Portfolio Optimizer
+The portfolio_optimizer allows users to:
 * Fetch live market data for S&P 500 and GPW assets.
 * Calculate the **Efficient Frontier**.
 * Optimize weights for **Max Sharpe Ratio**, **Minimum Volatility**, or **Target Return**.
