@@ -12,5 +12,4 @@ class ProbabilityOfDefaultModel:
 
     def predict_pd(self, X_input) -> float:
         """Returns the Probability of Default (PD) as a decimal."""
-        # Index [1] for the positive class (Default)
         return self.model.predict_proba(X_input)[:, 1]
