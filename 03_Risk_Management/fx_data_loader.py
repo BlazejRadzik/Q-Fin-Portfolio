@@ -5,7 +5,6 @@ from urllib.parse import quote_plus
 from datetime import datetime, timedelta
 import sys
 
-# Assume config.py is strictly kept out of version control (.gitignore)
 try:
     from config import DB_CONFIG
 except ImportError:
