@@ -39,7 +39,6 @@ class YieldCurveAnalyzer:
             print("Stooq API unavailable. Falling back to Synthetic Demo Data.")
             self.data_source = "Synthetic Demo Data"
             
-            # Generate random walk for demo purposes
             dates = pd.date_range(end=pd.Timestamp.now(), periods=1000, freq='D')
             spread_values = np.cumsum(np.random.normal(0, 0.06, 1000)) + 1.0
             spread_values[400:700] = spread_values[400:700] - 3.0  # Force an inversion period
@@ -57,24 +56,19 @@ class YieldCurveAnalyzer:
         """Plots the spread with a professional dark theme."""
         print("Plotting yield curve inversion...")
         
-        # Apply dark theme locally for this plot
         with plt.style.context('dark_background'):
             fig, ax = plt.subplots(figsize=(12, 7))
             
-            # Background and grid styling
             fig.patch.set_facecolor('#212121')
             ax.set_facecolor('#2b2b2b')
             ax.grid(True, linestyle=':', linewidth=0.7, color='#444444')
 
-            # Plot main spread line
             ax.plot(df.index, df['Spread'], label='Spread (10Y - 3M)', color='#00BFFF', linewidth=2)
             ax.axhline(0, color='#FF3333', linestyle='--', linewidth=1.5, alpha=0.8)
             
-            # Highlight Inversion Area
             ax.fill_between(df.index, df['Spread'], 0, where=df['Inversion'], 
                             color='#FF0000', alpha=0.4, label='Inversion Area')
 
-            # Annotate Maximum Inversion
             min_date = df['Spread'].idxmin()
             min_value = df['Spread'].min()
             
@@ -86,13 +80,11 @@ class YieldCurveAnalyzer:
                             color='white', fontweight='bold', ha='center',
                             bbox=dict(boxstyle="round,pad=0.3", fc="#FF3333", ec="none", alpha=0.3))
 
-            # Labels and title
             ax.set_title('Yield Curve Inversion Analysis (Poland)', fontsize=16, fontweight='bold', pad=20, color='#d4d4d4')
             ax.set_ylabel('Spread (Percentage Points)', fontsize=12, color='#d4d4d4')
             ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
             fig.autofmt_xdate()
 
-            # Legend and Source
             legend = ax.legend(loc='upper right', facecolor='#333333', edgecolor='#555555')
             plt.setp(legend.get_texts(), color='#d4d4d4')
             plt.figtext(0.95, 0.02, f'Source: {self.data_source} | Quant Portfolio Analytics', 
