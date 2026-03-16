@@ -75,7 +75,6 @@ if calculate_btn and selected_assets:
                 st.metric("Sharpe Ratio", f"{perf[2]:.2f}")
                 st.metric("Daily Historical VaR (95%)", f"{var_value:.2%}")
                 
-                # Weights DataFrame rendering
                 st.markdown("**Optimal Asset Allocation:**")
                 df_weights = pd.DataFrame.from_dict(clean_weights, orient='index', columns=['Weight']).query("Weight > 0")
                 df_weights = df_weights.sort_values(by='Weight', ascending=False)
