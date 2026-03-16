@@ -36,5 +36,4 @@ def print_simulation_table(file_path: str, scenario_name: str, top_n: int = 5):
         sys.exit(1)
 
 if __name__ == "__main__":
-    # Test the formatter using the English scenario name we defined in the engine
     print_simulation_table('simulation_details.csv', 'PKO_BP_Shock', top_n=5)
