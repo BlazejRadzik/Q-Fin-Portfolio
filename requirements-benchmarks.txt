@@ -1,0 +1,9 @@
+-r requirements.txt
+pybind11>=2.11
+typer>=0.9
+rich>=13.0
+httpx>=0.26
+tenacity>=8.2
+pydantic>=2.0
+pydantic-settings>=2.0
+cachetools>=5.3

@@ -1,28 +1,29 @@
-```markdown
-# 🏦 Institutional Credit Risk Intelligence (PD Model)
+## Cel modułu
 
-This module implements a professional **Credit Scoring Engine** designed to estimate the **Probability of Default (PD)**
-for banking portfolios. The system utilizes a modular architecture to separate data preprocessing, statistical modeling,
-and risk validation.
+**Ryzyko kredytowe:** estymacja **PD** (logit / logistyczna regresja) oraz prosty dashboard Streamlit do scorecardu.
 
-## 🧮 Theoretical Framework
+## Teoria w skrócie
 
-### The Logistic PD Model
-The model estimates the log-odds of default using a **Logistic Regression** framework. The relationship between input
-risk factors and the binary outcome is modeled as:
+- Logit: \(\ln\frac{p}{1-p} = \beta_0 + \sum_i \beta_i x_i\), \(p = \frac{1}{1+e^{-z}}\).
+- **Dyskryminacja:** AUC, **Gini** \(= 2\cdot\mathrm{AUC} - 1\).
 
-\ln\left(\frac{P(Default)}{1 - P(Default)}\right) = \beta_0 + \sum_{i=1}^{n} \beta_i X_i
+## Zawartość
 
-The final **PD** is obtained by applying the Sigmoid function to the logit z:
-PD = \frac{1}{1 + e^{-z}}
+| Plik | Rola |
+|------|------|
+| `app.py` | Interfejs z suwakami (FICO, DTI) i ilustracyjnym PD. |
+| `src/model_engine.py` | `ProbabilityOfDefaultModel` (`sklearn`, zapis `joblib`). |
 
-### Model Discrimination: The Gini Coefficient
-To validate the model's ability to rank-order risk, we calculate the **Gini Coefficient** derived from the Area Under
-the Curve (AUC):
-Gini = 2 \times AUC - 1
+## Uruchomienie
 
-## 📂 Architecture
-* `src/data_processor.py`: Handles Feature Engineering (DTI, Credit Utilization).
-* `src/model_engine.py`: Logistic engine for logit estimation.
-* `src/risk_metrics.py`: Validation suite for Gini scores.
-* `app.py`: Streamlit-based **Risk Underwriting Terminal**.
+```bash
+cd 07_Credit_Risk_Modeling
+pip install streamlit numpy scikit-learn joblib
+streamlit run app.py
+```
+
+Trening: `fit(X, y)` na macierzy cech w osobnym pipeline.
+
+## Powiązania w portfolio
+
+PD × ekspozycja vs **VaR rynkowy** (`03`) w szerszym obrazie ALM (EAD/LGD poza tym repo).

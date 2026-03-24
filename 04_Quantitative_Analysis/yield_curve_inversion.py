@@ -1,9 +1,11 @@
-import pandas as pd
-import matplotlib.pyplot as plt
-import requests
 import io
-import numpy as np
+
+import httpx
 import matplotlib.dates as mdates
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 class YieldCurveAnalyzer:
     """
@@ -15,18 +17,22 @@ class YieldCurveAnalyzer:
         self.long_term_ticker = long_term_ticker
         self.data_source = "Unknown"
 
+    @retry(
+        stop=stop_after_attempt(4),
+        wait=wait_exponential(multiplier=0.5, min=0.5, max=8),
+        reraise=False,
+    )
     def _fetch_stooq_data(self, ticker: str) -> pd.Series:
-        """Fetches historical financial data from Stooq API."""
         url = f"https://stooq.com/q/d/l/?s={ticker}&i=d"
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
         try:
-            r = requests.get(url, headers=headers, timeout=10)
+            with httpx.Client(timeout=10.0, follow_redirects=True) as client:
+                r = client.get(url, headers=headers)
             if r.status_code == 200 and len(r.text) > 100:
                 df = pd.read_csv(io.StringIO(r.text), index_col=0, parse_dates=True)
-                return df.iloc[:, -1] # Assuming the last column is 'Close'
+                return df.iloc[:, -1]
         except Exception as e:
             print(f"Warning: Could not fetch data for {ticker}. Error: {e}")
-        
         return pd.Series(dtype=float)
 
     def generate_spread_data(self) -> pd.DataFrame:

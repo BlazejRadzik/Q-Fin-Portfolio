@@ -1,15 +1,27 @@
-# Portfolio Optimization and Stochastic Models
+## Cel modułu
 
-This module focuses on Modern Portfolio Theory (MPT) and stochastic processes.
+Warstwa **alokacji aktywów** (Modern Portfolio Theory) i prostych narzędzi opartych na szeregach cen: front efektywny Markowitza oraz **historyczny VaR** portfela w jednej aplikacji Streamlit.
 
-## Portfolio Optimizer
-The portfolio_optimizer allows users to:
-* Fetch live market data for S&P 500 and GPW assets.
-* Calculate the **Efficient Frontier**.
-* Optimize weights for **Max Sharpe Ratio**, **Minimum Volatility**, or **Target Return**.
+## Teoria w skrócie
 
-### Usage Example
-To launch the interactive dashboard, ensure you have the requirements installed and run:
+- **Model Markowitza:** minimalizacja \(\mathbf{w}^\top \Sigma \mathbf{w}\) przy ograniczeniach na \(\sum w_i\) i \(\mathbf{w}^\top \boldsymbol{\mu}\), albo maksymalizacja Sharpe’a.
+- **Osiągalny front:** kombinacje ryzyko–zwrot przy ograniczeniach na długie pozycje.
+- **VaR historyczny:** kwantyl empiryczny rozkładu zwrotów portfela (np. \(\alpha = 5\%\)).
+
+## Zawartość
+
+| Plik | Rola |
+|------|------|
+| `portfolio_optimizer_app.py` | Streamlit: `yfinance`, `EfficientFrontier` (PyPortfolioOpt), wykresy wag, VaR. |
+
+## Uruchomienie
+
 ```bash
+cd 01_Stochastic_Models
+pip install streamlit yfinance pandas plotly PyPortfolioOpt numpy
 streamlit run portfolio_optimizer_app.py
-Mathematical CoreThe optimization engine solves the quadratic programming problem:$$\min w^T \Sigma w$$Subject to:$\sum w_i = 1$$w^T \mu = \mu_{target}$
+```
+
+## Powiązania w portfolio
+
+Wagi można zestawiać z **parametrycznym VaR FX** (`03_Risk_Management`) i z **backtestem** reguł technicznych (`06_Algorithmic_Trading`).

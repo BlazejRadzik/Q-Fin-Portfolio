@@ -1,26 +1,33 @@
-# Risk Management
+## Cel modułu
 
-This module provides tools for assessing market risk using historical simulation and parametric methods. It integrates with a SQL database to manage financial time series.
+**Ryzyko rynkowe:** ETL kursów FX (NBP) do SQL oraz **parametryczny dzienny VaR** z log-zwrotów.
 
-## Components
-* `fx_data_loader.py`: Automated ETL process fetching FX rates from NBP API.
-* `var_calculator.py`: Engine for calculating **Value at Risk (VaR)**.
+## Teoria w skrócie
 
-### Usage Example
-```python
-from var_calculator import VaRCalculator
+- \(r_t = \ln(P_t/P_{t-1})\), \(\hat{\sigma}\) z próby.
+- **VaR parametryczny (1 dzień):** \(\mathrm{VaR}_\alpha \approx z_\alpha \hat{\sigma} \cdot V\) przy normalności zwrotów, \(z_\alpha = \Phi^{-1}(\alpha)\).
 
-# Initialize calculator and fetch data from SQL
-calc = VaRCalculator()
+## Zawartość
 
-# Calculate 95% Confidence VaR for EUR/PLN with 1M PLN exposure
-calc.calculate_parametric_var(currency_pair='EUR/PLN', confidence_level=0.95, exposure=1000000)
+| Plik | Rola |
+|------|------|
+| `fx_data_loader.py` | Pobranie JSON z NBP przez **httpx** + ponowienia **tenacity**, zapis do MySQL. |
+| `var_calculator.py` | Odczyt szeregu z bazy, obliczenie VaR. |
+| `config.example.py` | Wzorzec `DB_CONFIG` przez **pydantic-settings** (`QFIN_DB_*` / `.env`). |
 
+## Konfiguracja
+
+Skopiuj `config.example.py` → `config.py` albo utrzymuj własny `config.py` ze słownikiem `DB_CONFIG`. Plik z hasłem nie jest commitowany (`.gitignore`).
+
+## Uruchomienie
+
+```bash
+cd 03_Risk_Management
+pip install pandas numpy scipy sqlalchemy mysql-connector-python httpx tenacity pydantic pydantic-settings
+python fx_data_loader.py
+python var_calculator.py
 ```
-## Methods
-The parametric VaR is calculated using the variance-covariance approach:
-$$VaR_{\alpha} = V \cdot Z_{\alpha} \cdot \sigma \cdot \sqrt{\Delta t}$$
-Where:
-* $V$: Portfolio value (Exposure).
-* $Z_{\alpha}$: Critical value from the standard normal distribution.
-* $\sigma$: Asset volatility (Standard deviation of returns).
+
+## Powiązania w portfolio
+
+Historyczny VaR portfela akcji: `01_Stochastic_Models`. Scenariusze \(\sigma\) i \(r\): moduły `02` i `05`.

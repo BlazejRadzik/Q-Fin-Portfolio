@@ -1,16 +1,27 @@
-# Derivatives Pricing 
+## Cel modułu
 
-This is a containerized interactive dashboard designed to compare analytical and numerical option pricing models.
+Aplikacje **Streamlit** do wyceny i eksperymentów numerycznych (BS vs MC, czułość parametrów).
 
-## Tech Stack
-* **Frontend:** Streamlit
-* **Mathematics:** Black-Scholes-Merton & Monte Carlo Simulation
-* **DevOps:** Docker (DevContainers) for reproducible environments
-* **Testing:** Pytest for model convergence validation
+## Stack
 
-## Features
-* **Interactive Sensitivity:** Real-time adjustments to Volatility, Time to Maturity, and Risk-Free rates.
-* **Convergence Plotting:** Visual analysis of how Monte Carlo simulations approach the theoretical Black-Scholes price as iterations increase.
+- Streamlit, NumPy/SciPy, Plotly
+- Opcjonalnie Docker: **Dev Containers** w `Derivatives_Pricing_App/.devcontainer/`
 
-## Running with Docker
-If you are using VS Code, simply click **"Reopen in Container"** to launch the environment with all dependencies pre-installed.
+## Zawartość
+
+| Ścieżka | Rola |
+|---------|------|
+| `Derivatives_Pricing_App/` | Dashboard opcji europejskich, zbieżność MC. |
+| `Derivatives_Pricing_App/.devcontainer/` | Powtarzalne środowisko (VS Code: *Reopen in Container*). |
+
+## Uruchomienie
+
+```bash
+cd 05_Interactive_Dashboards/Derivatives_Pricing_App
+pip install streamlit numpy scipy pandas plotly pytest
+streamlit run app.py
+```
+
+## Powiązania w portfolio
+
+Spójność z `02_Pricing_Engines` i jądrem C++ `08_Numerical_Kernels`.

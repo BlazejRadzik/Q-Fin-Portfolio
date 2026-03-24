@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61", "wheel", "pybind11"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "qfin-cpp"
+version = "0.1.0"
+description = "C++ pricing kernels exposed to Python via pybind11"
+requires-python = ">=3.9"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.setuptools]
+packages = []

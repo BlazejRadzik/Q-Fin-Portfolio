@@ -5,5 +5,12 @@ __pycache__/
 venv/
 .env
 config.py
+*.egg-info/
+.eggs/
+dist/
+build/
+*.pyd
+*.so
+
 # Bazy danych
 *.sqlite3
