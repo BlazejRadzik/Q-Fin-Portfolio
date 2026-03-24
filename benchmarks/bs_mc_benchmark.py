@@ -143,7 +143,7 @@ def main(
 
     console.print(table)
     console.print(
-        "[dim]Install: pip install -e 08_Numerical_Kernels/qfin_cpp_ext "
+        "[dim]Install: pip install -e 08_CPP_Pricing_Core/qfin_cpp_ext "
         "(needs C++17 toolchain).[/dim]"
     )
 

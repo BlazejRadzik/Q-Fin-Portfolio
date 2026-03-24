@@ -1,25 +1,43 @@
 # Q-Fin Portfolio
 
-Repozytorium to jest **segmentową biblioteką projektów ilościowych**: od modeli stochastycznych i wyceny po ryzyko rynkowe, makro, interfejsy, backtest i jądro C++. Każdy katalog `0x_*` ma własny, krótki `README.md` z celem, teorią i powiązaniami. Poniżej jest **mapa całego sektora**: jak zestawić moduły w jednym łańcuchu analitycznym oraz **fragmenty kodu wprost z repozytorium**.
+[![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 
-## Mapa modułów
+Biblioteka **projektów ilościowych** w Pythonie i C++: alokacja portfela, wycena opcji, VaR (historyczny i parametryczny), makro / krzywa, dashboardy Streamlit, backtest strategii, PD kredytowe oraz jądro numeryczne z opcjonalnym **pybind11**.
+
+| # | Katalog | Temat |
+|---|---------|--------|
+| 01 | [`01_Portfolio_Optimization`](01_Portfolio_Optimization) | Markowitz, front efektywny, historyczny VaR (Streamlit) |
+| 02 | [`02_Options_Pricing`](02_Options_Pricing) | BS + Monte Carlo + hybryda |
+| 03 | [`03_FX_And_Market_Risk`](03_FX_And_Market_Risk) | NBP → SQL, VaR parametryczny FX |
+| 04 | [`04_Macro_Yield_Curve`](04_Macro_Yield_Curve) | Spread krzywej, inwersja |
+| 05 | [`05_Derivatives_Dashboard`](05_Derivatives_Dashboard) | Streamlit: opcje, devcontainer |
+| 06 | [`06_Strategy_Backtest`](06_Strategy_Backtest) | EMA crossover, metryki backtestu |
+| 07 | [`07_Credit_Risk`](07_Credit_Risk) | PD, logistyczna regresja |
+| 08 | [`08_CPP_Pricing_Core`](08_CPP_Pricing_Core) | C++ BS/MC, CMake, `qfin_cpp` |
+| — | [`benchmarks/`](benchmarks) | Porównanie czasu i wartości Python ↔ C++ |
+
+Każdy moduł ma własny `README.md` (cel, teoria z poprawnymi wzorami, uruchomienie, powiązania).
+
+---
+
+## Mapa przepływu danych
 
 ```mermaid
 flowchart LR
-  subgraph market_data [Dane rynkowe]
-    A1[01 Stochastic / yfinance]
-    A2[03 FX / NBP + SQL]
-    A3[04 Makro / Stooq]
-    A4[06 OHLCV / yfinance]
+  subgraph data [Dane]
+    A1[01 yfinance]
+    A2[03 NBP + SQL]
+    A3[04 Stooq]
+    A4[06 yfinance]
   end
-  subgraph models [Modele]
+  subgraph core [Modele]
     B1[Markowitz + VaR hist]
-    B2[BS + MC hybrid]
-    B3[Parametryczny VaR FX]
+    B2[BS + MC]
+    B3[VaR FX]
     B4[PD logit]
     B5[C++ BS + MC]
   end
-  subgraph ui [Interfejsy]
+  subgraph ui [UI]
     C1[Streamlit portfel]
     C2[Streamlit opcje]
     C3[Streamlit backtest]
@@ -29,36 +47,31 @@ flowchart LR
   A1 --> C1
   A4 --> C3
   B2 --> C2
-  B5 -. kalibracja i benchmark .-> B2
+  B5 -. benchmark .-> B2
   B1 -. wagi vs sygnały .-> C3
-  B3 -. ten sam język ryzyka .-> B1
+  B3 -. ryzyko .-> B1
   B4 --> C4
 ```
 
-## Jak połączyć projekty w praktyce
+## Jak łączyć moduły
 
-1. **Alokacja i ryzyko portfela akcji**  
-   W `01_Stochastic_Models` optymalizujesz wagi (`EfficientFrontier`), a następnie możesz przenieść te wagi do raportu ryzyka: historyczny VaR jest już liczony w tej samej aplikacji na zwrotach portfela. Równolegle w `03_Risk_Management` liczysz **parametryczny VaR** dla ekspozycji FX — to uzupełnia obraz ryzyka, gdy portfel ma niewypłaszczone czynniki walutowe.
+1. **Portfel + ryzyko** — W [`01_Portfolio_Optimization`](01_Portfolio_Optimization) optymalizujesz wagi i widzisz historyczny VaR na zwrotach portfela. Równolegle [`03_FX_And_Market_Risk`](03_FX_And_Market_Risk) daje **parametryczny VaR** dla ekspozycji walutowej.
 
-2. **Spójność wyceny opcji**  
-   W `02_Pricing_Engines` masz pełny łańcuch BS + MC + hybryda. W `05_Interactive_Dashboards/Derivatives_Pricing_App` ten sam problem jest eksplorowany interaktywnie. W `08_Numerical_Kernels/cpp` dostajesz **referencyjną** implementację analityczną i MC w C++ — warto porównać średnią z MC w Pythonie i w C++ przy tych samych \(S, K, T, r, \sigma\) i liczbie ścieżek (różnice powinny maleć wraz z \(N\)).
+2. **Wycena opcji** — [`02_Options_Pricing`](02_Options_Pricing): BS + MC + hybryda. [`05_Derivatives_Dashboard`](05_Derivatives_Dashboard) eksploruje to interaktywnie. W [`08_CPP_Pricing_Core/cpp`](08_CPP_Pricing_Core/cpp) jest referencyjna implementacja w C++; sensownie porównywać średnie MC w Pythonie i w C++ przy tych samych $S$, $K$, $T$, $r$, $\sigma$ i liczbie ścieżek $N$.
 
-3. **Kontekst makro dla stóp i zmienności**  
-   Moduł `04_Quantitative_Analysis` nie podaje bezpośrednio \(r\) ani \(\sigma\) do innych folderów, ale stan krzywej (spread, inwersja) można traktować jako **kontekst** przy ustalaniu stopy bezryzyka w optymalizacji (`01`) lub scenariuszy w wycenie (`02`, `05`).
+3. **Makro** — [`04_Macro_Yield_Curve`](04_Macro_Yield_Curve) nie podaje automatycznie $r$ ani $\sigma$ do innych folderów, ale spread / inwersja stanowią **kontekst** dla stóp w `01` i scenariuszy w `02` / `05`.
 
-4. **Strategia techniczna vs optymalizacja mean–variance**  
-   `06_Algorithmic_Trading` realizuje regułę EMA na jednym instrumencie; wagi z `01` realizują regułę mean–variance na koszyku. Porównanie „ex-ante” (front efektywny) z „ex-post” (krzywa equity z backtestu) wymaga osobnej metodologii (np. te same aktywa, ten sam horyzont) — repozytorium daje **obie** ścieżki w kodzie.
+4. **Strategia vs optymalizacja** — [`06_Strategy_Backtest`](06_Strategy_Backtest): reguła EMA na jednym instrumencie; `01`: mean–variance na koszyku. To dwie różne filozofie alokacji — repo udostępnia obie ścieżki w kodzie.
 
-5. **Rynek vs kredyt**  
-   `07_Credit_Risk_Modeling` dostarcza warstwę PD (logit / logistyczna regresja w `src/model_engine.py`). W instytucji łączy się to z **VaR rynkowym** (`03`) w raportach zagregowanego ryzyka (EAD, LGD, korelacje — poza zakresem tego repo, ale punkt zaczepienia jest w PD i VaR).
+5. **Rynek vs kredyt** — [`07_Credit_Risk`](07_Credit_Risk): PD (logit / `sklearn`). W praktyce instytucjonalnej łączy się to z VaR rynkowym z `03` w szerszym frameworku (EAD, LGD — poza tym repozytorium).
 
 ---
 
-## Fragmenty kodu z repozytorium
+## Fragmenty kodu
 
-### 1. Hybrid BS + Monte Carlo + hybryda (Python)
+### 1. Hybrid BS + MC (Python)
 
-```36:49:02_Pricing_Engines/Hybrid_pricing_engine.py
+```36:49:02_Options_Pricing/Hybrid_pricing_engine.py
         d1 = (np.log(self.spot_price / self.strike_price) + (self.risk_free_rate + 0.5 * self.volatility**2) * self.time_to_maturity) / (self.volatility * np.sqrt(self.time_to_maturity))
         d2 = d1 - self.volatility * np.sqrt(self.time_to_maturity)
         bs_price = self.spot_price * norm.cdf(d1) - self.strike_price * np.exp(-self.risk_free_rate * self.time_to_maturity) * norm.cdf(d2)
@@ -73,9 +86,9 @@ flowchart LR
         hybrid_contributions = pv_payoffs + 1.0 * (bs_price - pv_payoffs)
 ```
 
-### 2. Black–Scholes w dashboardzie pochodnych (Python)
+### 2. Black–Scholes w dashboardzie
 
-```4:12:05_Interactive_Dashboards/Derivatives_Pricing_App/src/analytical.py
+```4:12:05_Derivatives_Dashboard/Derivatives_Pricing_App/src/analytical.py
 def black_scholes_european(S, K, T, r, sigma, option_type="call"):
 
     d1 = (np.log(S / K) + (r + 0.5 * sigma**2) * T) / (sigma * np.sqrt(T))
@@ -87,9 +100,9 @@ def black_scholes_european(S, K, T, r, sigma, option_type="call"):
         return K * np.exp(-r * T) * norm.cdf(-d2) - S * norm.cdf(-d1)
 ```
 
-### 3. Ten sam model analityczny w C++
+### 3. BS w C++
 
-```12:20:08_Numerical_Kernels/cpp/src/black_scholes.cpp
+```12:20:08_CPP_Pricing_Core/cpp/src/black_scholes.cpp
 double black_scholes_call(double spot, double strike, double time_years, double rate, double vol) {
     if (time_years <= 0.0 || vol <= 0.0 || spot <= 0.0 || strike <= 0.0) {
         return std::max(spot - strike, 0.0);
@@ -102,9 +115,9 @@ double black_scholes_call(double spot, double strike, double time_years, double 
 }
 ```
 
-### 4. Parametryczny VaR FX (Python)
+### 4. VaR parametryczny FX
 
-```30:46:03_Risk_Management/var_calculator.py
+```30:46:03_FX_And_Market_Risk/var_calculator.py
         df['returns'] = np.log(df['rate_mid'] / df['rate_mid'].shift(1))
         df = df.dropna()
         
@@ -120,16 +133,16 @@ double black_scholes_call(double spot, double strike, double time_years, double 
         print(f"Potential Loss Exposure   : {var_value:,.2f} PLN (on {exposure:,.0f} PLN portfolio)\n")
 ```
 
-### 5. Markowitz + historyczny VaR portfela w jednej aplikacji (Python)
+### 5. Markowitz + VaR historyczny
 
-```13:16:01_Stochastic_Models/portfolio_optimizer_app.py
+```13:16:01_Portfolio_Optimization/portfolio_optimizer_app.py
 def calculate_historical_var(data: pd.DataFrame, weights: pd.Series, alpha: float = 0.05) -> float:
     """Calculates historical Value at Risk for a given portfolio."""
     portfolio_returns = (data.pct_change().dropna() * pd.Series(weights)).sum(axis=1)
     return portfolio_returns.quantile(alpha)
 ```
 
-```62:78:01_Stochastic_Models/portfolio_optimizer_app.py
+```62:78:01_Portfolio_Optimization/portfolio_optimizer_app.py
             mu = expected_returns.mean_historical_return(data)
             S = risk_models.sample_cov(data)
             ef = EfficientFrontier(mu, S)
@@ -146,9 +159,9 @@ def calculate_historical_var(data: pd.DataFrame, weights: pd.Series, alpha: floa
             var_value = calculate_historical_var(data, clean_weights)
 ```
 
-### 6. Backtest EMA: krzywa kapitału i metryki (Python)
+### 6. Backtest engine
 
-```7:38:06_Algorithmic_Trading/src/engine.py
+```7:38:06_Strategy_Backtest/src/engine.py
 class BacktestEngine:
     def __init__(self, data: pd.DataFrame):
         self.data = data
@@ -183,9 +196,9 @@ class BacktestEngine:
         }
 ```
 
-### 7. Silnik PD (logistyczna regresja, Python)
+### 7. Model PD
 
-```5:14:07_Credit_Risk_Modeling/src/model_engine.py
+```5:14:07_Credit_Risk/src/model_engine.py
 class ProbabilityOfDefaultModel:
     def __init__(self, c_parameter: float = 0.1):
         self.model = LogisticRegression(C=c_parameter, penalty="l2", solver="lbfgs")
@@ -200,48 +213,38 @@ class ProbabilityOfDefaultModel:
 
 ---
 
-## Benchmarki Python ↔ C++ (`benchmarks/`)
+## Benchmarki (`benchmarks/`)
 
-Rozszerzenie **`qfin_cpp`** (katalog `08_Numerical_Kernels/qfin_cpp_ext`) udostępnia w Pythonie te same funkcje co kod w `cpp/`, dzięki **pybind11**. Skrypt `benchmarks/bs_mc_benchmark.py` (CLI: **Typer**, tabele: **Rich**) mierzy czasy BS i Monte Carlo oraz różnice wartości względem implementacji NumPy/SciPy.
+Moduł **`qfin_cpp`** w [`08_CPP_Pricing_Core/qfin_cpp_ext`](08_CPP_Pricing_Core/qfin_cpp_ext) udostępnia w Pythonie funkcje z `cpp/`. Skrypt [`benchmarks/bs_mc_benchmark.py`](benchmarks/bs_mc_benchmark.py) (**Typer**, **Rich**) mierzy czasy BS i MC.
 
 ```bash
 pip install pybind11
-pip install -e 08_Numerical_Kernels/qfin_cpp_ext
+pip install -e 08_CPP_Pricing_Core/qfin_cpp_ext
 pip install -r requirements-benchmarks.txt
 python benchmarks/bs_mc_benchmark.py --paths 500000
 ```
 
-Szczegóły: [benchmarks/README.md](benchmarks/README.md).
+## Biblioteki (wybrane)
 
-## Biblioteki „profesjonalne” w projekcie
+| Biblioteka | Gdzie |
+|------------|--------|
+| **httpx** | `03_FX_And_Market_Risk/fx_data_loader.py`, `04_Macro_Yield_Curve/yield_curve_inversion.py` |
+| **tenacity** | ponawianie zapytań HTTP |
+| **rich** | `02_Options_Pricing/report_formatter.py` |
+| **cachetools** | `06_Strategy_Backtest/src/data_loader.py` |
+| **pydantic-settings** | `03_FX_And_Market_Risk/config.example.py` |
+| **pybind11** | `08_CPP_Pricing_Core/qfin_cpp_ext` |
 
-| Biblioteka | Gdzie | Po co |
-|------------|--------|--------|
-| **httpx** | `03_Risk_Management/fx_data_loader.py`, `04_Quantitative_Analysis/yield_curve_inversion.py` | HTTP z timeoutami, spójne API; łatwe rozszerzenie o HTTP/2 / async. |
-| **tenacity** | te same moduły | Powtarzanie zapytań przy chwilowych błędach sieci (NBP, Stooq). |
-| **rich** | `02_Pricing_Engines/report_formatter.py` | Czytelne tabele w terminalu (fallback na zwykły tekst bez Rich). |
-| **cachetools** | `06_Algorithmic_Trading/src/data_loader.py` | Cache TTL dla pobierania OHLCV (`yfinance`), mniej zapytań przy strojeniu backtestu. |
-| **pydantic-settings** | `03_Risk_Management/config.example.py` | Wzorzec `DB_CONFIG` z walidacją i prefixem `QFIN_DB_` (skopiuj do `config.py` lub użyj `.env`). |
-| **pybind11** | `08_Numerical_Kernels/qfin_cpp_ext` | Wspólne benchmarki i ewentualna produkcyjna ścieżka „gorąca” w C++. |
+## Zależności i narzędzia
 
-## Indeks katalogów
+- [`requirements.txt`](requirements.txt) — środowisko Python modułów głównych.
+- [`requirements-benchmarks.txt`](requirements-benchmarks.txt) — benchmarki + pybind11.
+- C++: **CMake** 3.16+, kompilator **C++17** (`bs_demo` oraz budowa `qfin_cpp`).
 
-| Katalog | Temat |
-|---------|--------|
-| `01_Stochastic_Models` | MPT, front efektywny, VaR historyczny portfela (Streamlit) |
-| `02_Pricing_Engines` | BS, MC, hybryda, raportowanie symulacji |
-| `03_Risk_Management` | FX z NBP/SQL, VaR parametryczny |
-| `04_Quantitative_Analysis` | Spread krzywej, inwersja (Stooq / demo) |
-| `05_Interactive_Dashboards` | UI: wycena opcji, devcontainer |
-| `06_Algorithmic_Trading` | EMA crossover, backtest, Streamlit |
-| `07_Credit_Risk_Modeling` | PD, dashboard, `sklearn` w `src/model_engine.py` |
-| `08_Numerical_Kernels` | C++: BS + MC, CMake, opcjonalnie moduł `qfin_cpp` (pybind11) |
-| `benchmarks/` | Porównanie czasu i wartości BS/MC: Python vs `qfin_cpp` |
+## Notacja matematyczna na GitHubie
 
-## Zależności
+W README używane są **dolary** w stylu GitHub: `$...$` (inline) oraz `$$...$$` (blok). Składnia `\(...\)` nie jest renderowana — stąd wcześniejsze „rozwalone” wzory.
 
-W katalogu głównym jest plik `requirements.txt` (w tym httpx, tenacity, rich, cachetools, pydantic). Do benchmarków i budowy rozszerzenia użyj `requirements-benchmarks.txt` oraz `pip install pybind11`. Moduł `03` może korzystać z `config.py` (jak dotąd) albo wzorca `config.example.py` z **pydantic-settings** i zmiennych `QFIN_DB_*`. Natywny program demonstracyjny C++ wymaga **CMake** i kompilatora **C++17**; moduł Python `qfin_cpp` wymaga tego samego toolchainu przy `pip install -e qfin_cpp_ext`.
+## Inspiracja
 
-## Inspiracja stylem dokumentacji
-
-Układ „cel → teoria → pliki → uruchomienie → powiązania” jest zbliżony do dobrych praktyk repozytoriów typu **quant / risk** (np. projekty z ekosystemu GitHub wyszukiwane jako [quantrisk](https://github.com/search?q=quantrisk&type=repositories)), z naciskiem na **powiązania między modułami** i cytaty z własnego kodu.
+Układ dokumentacji zbliżony jest do repozytoriów **quant / risk** (np. wyszukiwanie [quantrisk na GitHubie](https://github.com/search?q=quantrisk&type=repositories)).
