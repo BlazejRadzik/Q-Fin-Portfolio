@@ -243,7 +243,7 @@ python benchmarks/bs_mc_benchmark.py --paths 500000
 
 ## Notacja matematyczna na GitHubie
 
-W README używane są **dolary** w stylu GitHub: `$...$` (inline) oraz `$$...$$` (blok). Składnia `\(...\)` nie jest renderowana — stąd wcześniejsze „rozwalone” wzory.
+W README używane są **dolary** w stylu GitHub: `$...$` (inline) oraz `$$...$$` (blok). Składnia `\(...\)` nie jest renderowana.
 
 ## Inspiracja
 
